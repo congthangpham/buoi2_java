@@ -17,9 +17,11 @@ public class Clock extends JPanel {
     }
 
     public void Start() {
-        while (true) {
-            updateTime();
-        }
+        new Thread(()->{
+            while (true) {
+                updateTime();
+            }
+        }).start();
     }
 
     private void updateTime() {
