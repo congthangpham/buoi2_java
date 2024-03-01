@@ -1,33 +1,55 @@
 import javax.swing.*;
 import java.awt.*;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Calendar;
+import java.util.TimeZone;
 
-import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
+public class Clock extends JFrame implements Runnable {
+    private JLabel clockLabel;
+    private TimeZone timeZone;
 
-public class Clock extends JPanel {
-    private JLabel timeLabel;
+    public Clock(TimeZone timeZone) {
+        this.timeZone = timeZone;
+        setTitle("Clock - " + timeZone.getID());
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setSize(200, 150); // Đã thay đổi kích thước để hiển thị cả múi giờ
+        setLocationRelativeTo(null);
 
-    public Clock() {
-        setBounds(0,0,200,100);
-        setLayout(new FlowLayout());
+        initComponents();
 
-        timeLabel = new JLabel();
-        add(timeLabel);
+        Thread thread = new Thread(this);
+        thread.start();
     }
 
-    public void Start() {
-        new Thread(()->{
-            while (true) {
-                updateTime();
+    private void initComponents() {
+        setLayout(new GridLayout(2, 1)); // Sử dụng GridLayout để chia cửa sổ thành 2 phần
+
+        clockLabel = new JLabel();
+        clockLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        add(clockLabel);
+
+        // Hiển thị thông tin múi giờ khu vực
+        JLabel timeZoneLabel = new JLabel("Timezone: " + timeZone.getID());
+        timeZoneLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        add(timeZoneLabel);
+    }
+
+    @Override
+    public void run() {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        sdf.setTimeZone(timeZone);
+
+        while (true) {
+            Calendar calendar = Calendar.getInstance(timeZone);
+            String time = sdf.format(calendar.getTime());
+            String timeZoneInfo = "Timezone: " + timeZone.getID() + " | Time: " + time;
+            clockLabel.setText(timeZoneInfo);
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        }).start();
+        }
     }
-
-    private void updateTime() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        timeLabel.setText(dateFormat.format(new Date()));
-    }
-
-
 }
